@@ -1,8 +1,8 @@
 import { initialCards } from './cards.js';
 import { createCard } from './card.js';
 import { openModal, closeModal } from './modal.js';
-import { validateCardForm, validateProfile } from './validation.js';
 import { handleCardFormSubmit, handleProfileFormSubmit } from './handlers.js';
+import { enableValidation } from './validation.js';
 
 export const cardTemplate = document.querySelector('#card-template').content;
 export const placesList = document.querySelector('.places__list');
@@ -48,17 +48,7 @@ document.addEventListener('keydown', (evt) => {
   }
 });
 
-// Обработчики событий
-newCardTitle.addEventListener('input', validateCardForm);
-newCardImage.addEventListener('input', validateCardForm);
 
-
-// Добавляем слушатели событий на поля ввода
-profileNameInput.addEventListener('input', validateProfile);
-profileDescriptionInput.addEventListener('input', validateProfile);
-
-
-// Открытие попапа редактирования профиля
 const editButton = document.querySelector('.profile__edit-button');
 editButton.addEventListener('click', () => {
     profileNameInput.value = profileName.textContent;
@@ -66,10 +56,7 @@ editButton.addEventListener('click', () => {
     openModal(profilePopup);
 });
 
-// Инициализация состояния кнопки при загрузке страницы
-validateProfile();
 
-// Закрытие попапа редактирования профиля
 const closeEditButton = profilePopup.querySelector('.popup__close');
 closeEditButton.addEventListener('click', () => {
   closeModal(profilePopup);
@@ -80,7 +67,7 @@ addButton.addEventListener('click', () => {
     newCardTitle.value = newCardTitle.textContent;
     newCardImage.value = newCardImage.textContent;
     openModal(cardPopup);
-    validateCardForm();
+
 });
 
 const closeCardButton = cardPopup.querySelector('.popup__close');
@@ -88,7 +75,7 @@ closeCardButton.addEventListener('click', () => {
   closeModal(cardPopup);
 });
 
-// Закрытие попапа картинки
+
 const closeImageButton = imagePopup.querySelector('.popup__close');
 closeImageButton.addEventListener('click', () => {
     closeModal(imagePopup);
@@ -98,5 +85,13 @@ profileForm.addEventListener('submit', handleProfileFormSubmit);
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
 
 
+const validationSettings = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
 
-
+enableValidation(validationSettings);

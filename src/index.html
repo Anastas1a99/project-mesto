@@ -30,7 +30,7 @@
   </main>
   <footer class="footer page__section">
     <p class="footer__copyright">
-      © 2021 Mesto Russia
+      © 2025 Mesto Russia
     </p>
   </footer>
   <div class="popup popup_type_edit">
@@ -39,8 +39,10 @@
       <h3 class="popup__title">Редактировать профиль</h3>
       <form class="popup__form" name="edit-profile">
         <input type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" required>
+        <div class="popup__error-message" id="name-error"></div>
         <input type="text" name="description" class="popup__input popup__input_type_description" placeholder="Занятие" required>
-        <button type="submit" class="button popup__button">Сохранить</button>
+        <div class="popup__error-message" id="description-error"></div>
+        <button type="submit" class="button popup__button popup__button_disabled">Сохранить</button>
       </form>
     </div>
   </div>
@@ -49,9 +51,11 @@
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Новое место</h3>
       <form class="popup__form" name="new-place">
-        <input type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" required>
+        <input type="text" name="title" class="popup__input popup__input_type_card-name" placeholder="Название" required>
+        <div class="popup__error-message" id="title-error"></div>
         <input type="url" name="link" class="popup__input popup__input_type_url" placeholder="Ссылка на картинку" required>
-        <button type="submit" class="button popup__button">Сохранить</button>
+        <div class="popup__error-message" id="link-error"></div>
+        <button type="submit" class="button popup__button popup__button_disabled">Сохранить</button>
       </form>
     </div>
   </div>
@@ -63,8 +67,8 @@
     </div>
   </div>
 </div>
-<script src="./scripts/cards.js"></script>
-<script src="./scripts/index.js" defer></script>
+<script src="./scripts/cards.js" type="module"></script>
+<script src="./scripts/index.js" type="module" defer></script>
 
 <template id="card-template">
   <li class="places__item card">
