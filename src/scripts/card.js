@@ -1,4 +1,4 @@
-import { cardTemplate, imagePopup } from './index.js';
+import { cardTemplate, imagePopup, openConfirmDelete } from '../index.js';
 import { openModal } from './modal.js';
 import { likeCard, unlikeCard, deleteCard } from './api.js';
 
@@ -9,6 +9,7 @@ function createCard(cardData, currentUserId) {
   const cardLikeButton = cardElement.querySelector('.card__like-button');
   const cardDeleteButton = cardElement.querySelector('.card__delete-button');
   const cardLikeContainer = cardElement.querySelector('.card__like-container'); 
+
 
   // Создаем элемент для количества лайков и добавляем в контейнер
   let cardLikeCount = cardElement.querySelector('.card__like-count');
@@ -23,6 +24,8 @@ function createCard(cardData, currentUserId) {
   cardTitle.textContent = cardData.name;
 
   cardLikeCount.textContent = cardData.likes.length;
+
+  
 
   if (cardData.likes.some(user => user._id === currentUserId)) {
     cardLikeButton.classList.add('card__like-button_is-active');
@@ -41,6 +44,18 @@ function createCard(cardData, currentUserId) {
       alert('Не удалось обновить лайк');
     });
   });
+
+  const deleteButton = cardElement.querySelector('.card__delete-button');
+
+  
+  if (cardData.owner._id === currentUserId) {
+    deleteButton.addEventListener('click', () => {
+      openConfirmDelete(cardElement, cardData._id);
+    });
+  } else {
+    deleteButton.style.display = 'none';
+  }
+
 
   if (cardData.owner._id === currentUserId) {
     cardDeleteButton.addEventListener('click', () => {

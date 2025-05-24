@@ -1,8 +1,10 @@
-import { createCard } from './card.js';
-import { openModal, closeModal } from './modal.js';
-import { handleCardFormSubmit, handleProfileFormSubmit, handleAvatarFormSubmit } from './handlers.js';
-import { enableValidation } from './validation.js';
-import { getUserInfo, getInitialCards } from './api.js';
+import './pages/index.css';
+import { createCard } from './scripts/card.js';
+import { openModal, closeModal } from './scripts/modal.js';
+//import { validateCardForm, validateProfile } from './validation.js';
+import { handleCardFormSubmit, handleProfileFormSubmit, handleAvatarFormSubmit } from './scripts/handlers.js';
+import { enableValidation } from './scripts/validation.js';
+import { getUserInfo, getInitialCards, deleteCard } from './scripts/api.js';
 
 export const cardTemplate = document.querySelector('#card-template').content;
 export const placesList = document.querySelector('.places__list');
@@ -32,6 +34,11 @@ const avatarForm = avatarPopup.querySelector('.popup__form');
 const avatarInput = avatarPopup.querySelector('.popup__input_type_avatar-link');
 const avatarButton = document.querySelector('.profile__avatar-edit-button');
 const profileImage = document.querySelector('.profile__image');
+
+const confirmDeletePopup = document.querySelector('.popup_type_confirm-delete');
+const confirmDeleteForm = confirmDeletePopup.querySelector('form');
+const confirmDeleteButton = confirmDeleteForm.querySelector('.popup__button');
+let cardToDelete = null;
 
 getUserInfo()
   .then(user => {
@@ -69,7 +76,17 @@ document.addEventListener('keydown', (evt) => {
   }
 });
 
+// Обработчики событий
+//newCardTitle.addEventListener('input', validateCardForm);
+//newCardImage.addEventListener('input', validateCardForm);
 
+
+// Добавляем слушатели событий на поля ввода
+//profileNameInput.addEventListener('input', validateProfile);
+//profileDescriptionInput.addEventListener('input', validateProfile);
+
+
+// Открытие попапа редактирования профиля
 const editButton = document.querySelector('.profile__edit-button');
 editButton.addEventListener('click', () => {
     profileNameInput.value = profileName.textContent;
@@ -77,7 +94,10 @@ editButton.addEventListener('click', () => {
     openModal(profilePopup);
 });
 
+// Инициализация состояния кнопки при загрузке страницы
+//validateProfile();
 
+// Закрытие попапа редактирования профиля
 const closeEditButton = profilePopup.querySelector('.popup__close');
 closeEditButton.addEventListener('click', () => {
   closeModal(profilePopup);
@@ -105,18 +125,46 @@ closeImageButton.addEventListener('click', () => {
 profileForm.addEventListener('submit', handleProfileFormSubmit); 
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
 
-
+// Открытие попапа при клике по иконке редактирования
 avatarButton.addEventListener('click', () => {
   avatarInput.value = '';
   openModal(avatarPopup);
 });
 
-
+// Закрытие попапа
 const closeAvatarButton = avatarPopup.querySelector('.popup__close');
 closeAvatarButton.addEventListener('click', () => closeModal(avatarPopup));
 
-
+// Отправка формы
 avatarForm.addEventListener('submit', handleAvatarFormSubmit);
+
+export function openConfirmDelete(cardElement, cardId) {
+  cardToDelete = { element: cardElement, id: cardId };
+  console.log('я открылся');
+  openModal(confirmDeletePopup);
+}
+
+confirmDeleteForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  confirmDeleteButton.textContent = 'Удаление...';
+
+  deleteCard(cardToDelete.id)
+    .then(() => {
+      cardToDelete.element.remove();
+      closeModal(confirmDeletePopup);
+    })
+    .catch(err => {
+      console.error('Ошибка удаления карточки:', err);
+    })
+    .finally(() => {
+      confirmDeleteButton.textContent = 'Да';
+      cardToDelete = null;
+    });
+});
+
+const confirmDeleteCloseButton = confirmDeletePopup.querySelector('.popup__close');
+confirmDeleteCloseButton.addEventListener('click', () => closeModal(confirmDeletePopup));
 
 
 const validationSettings = {
