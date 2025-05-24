@@ -70,23 +70,23 @@ export function handleProfileFormSubmit(evt) {
 
 export function handleAvatarFormSubmit(evt) {
   evt.preventDefault();
-
   const form = evt.target;
-  const submitButton = form.querySelector('.popup__button');
-  const avatar = form.avatar.value;
+  const avatarInput = form.querySelector('.popup__input_type_avatar-link');
+  const button = form.querySelector('.popup__button');
 
-  setLoading(submitButton, true);
+  const avatarLink = avatarInput.value.trim();
 
-  updateUserAvatar({ avatar })
-    .then(user => {
-      document.querySelector('.profile__image').style.backgroundImage = `url(${user.avatar})`;
+  button.textContent = 'Сохранение...';
 
+  updateUserAvatar(avatarLink)
+    .then((userData) => {
+      profileImage.style.backgroundImage = `url(${userData.avatar})`;
       closeModal(form.closest('.popup'));
     })
-    .catch(err => {
-      console.error('Ошибка обновления аватара:', err);
+    .catch((err) => {
+      console.error('Ошибка при обновлении аватара:', err);
     })
     .finally(() => {
-      setLoading(submitButton, false);
+      button.textContent = 'Сохранить';
     });
 }

@@ -11,12 +11,12 @@ function createCard(cardData, currentUserId) {
   const cardLikeContainer = cardElement.querySelector('.card__like-container'); 
 
 
-  // Создаем элемент для количества лайков и добавляем в контейнер
+
   let cardLikeCount = cardElement.querySelector('.card__like-count');
   if (!cardLikeCount) {
     cardLikeCount = document.createElement('span');
     cardLikeCount.classList.add('card__like-count');
-    cardLikeContainer.appendChild(cardLikeCount); // Добавляем в контейнер, а не в кнопку
+    cardLikeContainer.appendChild(cardLikeCount); 
   }
 
   cardImage.src = cardData.link;
@@ -56,21 +56,6 @@ function createCard(cardData, currentUserId) {
     deleteButton.style.display = 'none';
   }
 
-
-  if (cardData.owner._id === currentUserId) {
-    cardDeleteButton.addEventListener('click', () => {
-      deleteCard(cardData._id)
-        .then(() => {
-          cardElement.remove();
-        })
-        .catch(err => {
-          console.error('Ошибка при удалении карточки:', err);
-          alert('Не удалось удалить карточку');
-        });
-    });
-  } else {
-    cardDeleteButton.remove();
-  }
 
   cardImage.addEventListener('click', () => {
     const popupImage = imagePopup.querySelector('.popup__image');
