@@ -1,79 +1,100 @@
-import { newCardTitle, newCardImage, profileNameInput, profileDescriptionInput, saveButton, cardFormElement} from './index.js';
 
+function showInputError(formElement, inputElement, errorMessage, settings) {
+  const errorElement = formElement.querySelector(`#${inputElement.name}-error`);
+  inputElement.classList.add(settings.inputErrorClass);
+  errorElement.textContent = errorMessage;
+  errorElement.classList.add(settings.errorClass);
+}
+
+function hideInputError(formElement, inputElement, settings) {
+  const errorElement = formElement.querySelector(`#${inputElement.name}-error`);
+  inputElement.classList.remove(settings.inputErrorClass);
+  errorElement.textContent = '';
+  errorElement.classList.remove(settings.errorClass);
+}
+
+function isValid(formElement, inputElement, settings) {
+  const value = inputElement.value.trim();
+
+  if (inputElement.name === 'link' && !validateURL(value)) {
+    showInputError(formElement, inputElement, 'Введите корректную ссылку.', settings);
+    return;
+  }
+
+  if (inputElement.name === 'name') {
+    if (value.length < 2 || value.length > 40) {
+      showInputError(formElement, inputElement, 'Имя должно быть от 2 до 40 символов.', settings);
+      return;
+    }
+  }
+
+  if (inputElement.name === 'description') {
+    if (value.length < 2 || value.length > 200) {
+      showInputError(formElement, inputElement, 'Описание должно быть от 2 до 200 символов.', settings);
+      return;
+    }
+  }
+
+  if (inputElement.name === 'title') {
+    if (value.length < 2 || value.length > 30) {
+      showInputError(formElement, inputElement, 'Название должно быть от 2 до 30 символов.', settings);
+      return;
+    }
+  }
+
+  // Если поле не прошло нативную валидацию — показать стандартную ошибку
+  if (!inputElement.validity.valid) {
+    showInputError(formElement, inputElement, inputElement.validationMessage, settings);
+  } else {
+    hideInputError(formElement, inputElement, settings);
+  }
+}
+
+
+
+function hasInvalidInput(inputList) {
+  return inputList.some((inputElement) => !inputElement.validity.valid);
+}
+
+function toggleButtonState(inputList, buttonElement, settings) {
+  if (hasInvalidInput(inputList)) {
+    buttonElement.disabled = true;
+    buttonElement.classList.add(settings.inactiveButtonClass);
+  } else {
+    buttonElement.disabled = false;
+    buttonElement.classList.remove(settings.inactiveButtonClass);
+  }
+}
+
+function setEventListeners(formElement, settings) {
+  const inputList = Array.from(formElement.querySelectorAll(settings.inputSelector));
+  const buttonElement = formElement.querySelector(settings.submitButtonSelector);
+
+  toggleButtonState(inputList, buttonElement, settings);
+
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener('input', () => {
+      isValid(formElement, inputElement, settings);
+      toggleButtonState(inputList, buttonElement, settings);
+    });
+  });
+}
+
+function enableValidation(settings) {
+  const formList = Array.from(document.querySelectorAll(settings.formSelector));
+  formList.forEach((formElement) => {
+    setEventListeners(formElement, settings);
+  });
+}
+
+// Вспомогательная функция валидации URL
 function validateURL(url) {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
-function validateCardForm() {
-    const cardSaveButton = cardFormElement.querySelector('.popup__button');
-  
-    if (newCardTitle.value.length < 2 || newCardTitle.value.length > 40) {
-      newCardTitle.setCustomValidity("Длина названия должна быть от 2 до 40 символов.");
-    } else {
-      newCardTitle.setCustomValidity(""); // Сбрасываем пользовательскую валидацию
-    }
-    if (validateURL(newCardImage.value)){
-      newCardImage.setCustomValidity(""); // Сбрасываем пользовательскую валидацию
-    }else{
-      newCardImage.setCustomValidity("Введите корректную ссылку.");
-    }
-  
-    const isTitleValid = newCardTitle.validity.valid;
-    const isLinkValid = newCardImage.validity.valid;
-  
-    // Управление кнопкой
-    if (isTitleValid && isLinkValid) {
-      cardSaveButton.disabled = false;
-      cardSaveButton.style.backgroundColor = ''; // Возвращаем стандартный цвет
-    } else {
-      cardSaveButton.disabled = true;
-      cardSaveButton.style.backgroundColor = '#C4C4C4'; // Цвет неактивной кнопки
-    }
-  
-    // Сообщения об ошибках
-    document.getElementById('card-name-error').textContent =
-      newCardTitle.value ? newCardTitle.validationMessage : '';
-    document.getElementById('url-error').textContent =
-      newCardImage.value ? newCardImage.validationMessage : '';
-}
-
-  
-// Функция для проверки валидности формы
-function validateProfile() {
-  // Валидация имени
-  if (profileNameInput.value.length < 2 || profileNameInput.value.length > 40) {
-    profileNameInput.setCustomValidity("Длина имени должна быть от 2 до 40 символов.");
-  } else {
-    profileNameInput.setCustomValidity(""); // Сбрасываем пользовательскую валидацию
-  }
-
-  // Валидация описания
-  if (profileDescriptionInput.value.length < 2 || profileDescriptionInput.value.length > 200) {
-    profileDescriptionInput.setCustomValidity("Длина описания должна быть от 2 до 200 символов.");
-  } else {
-    profileDescriptionInput.setCustomValidity(""); // Сбрасываем пользовательскую валидацию
-  }
-
-  const isNameValid = profileNameInput.validity.valid;
-  const isDescriptionValid = profileDescriptionInput.validity.valid;
-
-  // Включаем или выключаем кнопку "Сохранить"
-  if (isNameValid && isDescriptionValid) {
-    saveButton.disabled = false;
-    saveButton.style.backgroundColor = ''; // Возвращаем стандартный цвет
-  } else {
-    saveButton.disabled = true;
-    saveButton.style.backgroundColor = '#C4C4C4'; // Цвет неактивной кнопки
-  }
-
-  // Отображение сообщений об ошибках
-  document.getElementById('name-error').textContent = profileNameInput.value ? profileNameInput.validationMessage : '';
-  document.getElementById('description-error').textContent = profileDescriptionInput.value ? profileDescriptionInput.validationMessage : '';
-}
-
-export { validateCardForm, validateProfile };
+export { enableValidation };
