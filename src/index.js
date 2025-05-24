@@ -1,10 +1,11 @@
-import './pages/index.css';
-import { createCard } from './scripts/card.js';
-import { openModal, closeModal } from './scripts/modal.js';
-//import { validateCardForm, validateProfile } from './validation.js';
-import { handleCardFormSubmit, handleProfileFormSubmit, handleAvatarFormSubmit } from './scripts/handlers.js';
-import { enableValidation } from './scripts/validation.js';
-import { getUserInfo, getInitialCards, deleteCard } from './scripts/api.js';
+
+//import './pages/index.css';
+
+import { createCard } from './components/card.js';
+import { openModal, closeModal } from './components/modal.js';
+import { handleCardFormSubmit, handleProfileFormSubmit, handleAvatarFormSubmit } from './components/handlers.js';
+import { enableValidation } from './components/validation.js';
+import { getUserInfo, getInitialCards, deleteCard } from './components/api.js';
 
 export const cardTemplate = document.querySelector('#card-template').content;
 export const placesList = document.querySelector('.places__list');
@@ -76,14 +77,6 @@ document.addEventListener('keydown', (evt) => {
   }
 });
 
-// Обработчики событий
-//newCardTitle.addEventListener('input', validateCardForm);
-//newCardImage.addEventListener('input', validateCardForm);
-
-
-// Добавляем слушатели событий на поля ввода
-//profileNameInput.addEventListener('input', validateProfile);
-//profileDescriptionInput.addEventListener('input', validateProfile);
 
 
 // Открытие попапа редактирования профиля
@@ -94,10 +87,6 @@ editButton.addEventListener('click', () => {
     openModal(profilePopup);
 });
 
-// Инициализация состояния кнопки при загрузке страницы
-//validateProfile();
-
-// Закрытие попапа редактирования профиля
 const closeEditButton = profilePopup.querySelector('.popup__close');
 closeEditButton.addEventListener('click', () => {
   closeModal(profilePopup);
@@ -138,9 +127,8 @@ closeAvatarButton.addEventListener('click', () => closeModal(avatarPopup));
 // Отправка формы
 avatarForm.addEventListener('submit', handleAvatarFormSubmit);
 
-export function openConfirmDelete(cardElement, cardId) {
-  cardToDelete = { element: cardElement, id: cardId };
-  console.log('я открылся');
+export function openConfirmDelete(cardElement, currentUserId) {
+  cardToDelete = { element: cardElement, id: currentUserId };
   openModal(confirmDeletePopup);
 }
 
