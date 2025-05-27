@@ -1,5 +1,5 @@
 
-//import './pages/index.css';
+import './pages/index.css';
 
 import { createCard } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
