@@ -1,90 +1,95 @@
-import { placesList, newCardTitle, newCardImage, cardPopup, 
-         profileNameInput, profileDescriptionInput, 
-         profileName, profileDescription, currentUserId } from '../index.js';
+import { placesList, cardPopup, profileName, profileDescription, currentUserId } from '../index.js';
 import { closeModal } from './modal.js';
 import { createCard } from './card.js';
 import { addNewCard, updateUserInfo, updateUserAvatar } from './api.js';
 
-// Получаем элемент аватара профиля
 const profileImage = document.querySelector('.profile__image');
 
 /**
- * Устанавливает состояние загрузки для кнопки
- * @param {HTMLElement} button - Кнопка
- * @param {boolean} isLoading - Флаг загрузки
- * @param {string} defaultText - Текст по умолчанию
+ * Блокирует или разблокирует все элементы формы
+ * @param {HTMLFormElement} form - Форма
+ * @param {boolean} isLocked - Флаг блокировки
  */
-function setLoadingState(button, isLoading, defaultText = 'Сохранить') {
-  button.textContent = isLoading ? 'Сохранение...' : defaultText;
+function toggleFormLock(form, isLocked) {
+  const elements = form.elements;
+  
+  for (let i = 0; i < elements.length; i++) {
+    elements[i].disabled = isLocked;
+  }
+  
+  const submitButton = form.querySelector('.popup__button');
+  if (submitButton) {
+    submitButton.textContent = isLocked ? 'Сохранение...' : 'Сохранить';
+  }
 }
-
 
 /**
  * Обработчик отправки формы карточки
- * @param {Event} evt - Событие формы
  */
 export function handleCardFormSubmit(evt) {
   evt.preventDefault();
   const form = evt.target;
-  const submitButton = form.querySelector('.popup__button');
-  const { title, link } = form.elements;
+  
+  toggleFormLock(form, true); // Блокируем форму
 
-  setLoadingState(submitButton, true);
-
-  addNewCard({ name: title.value, link: link.value })
+  addNewCard({
+    name: form.elements.title.value,
+    link: form.elements.link.value
+  })
     .then(cardData => {
       const cardElement = createCard(cardData, currentUserId);
       placesList.prepend(cardElement);
       form.reset();
       closeModal(cardPopup);
     })
-    .catch(err => console.error('Ошибка создания карточки:', err))
-    .finally(() => setLoadingState(submitButton, false));
+    .catch(err => {
+      console.error('Ошибка создания карточки:', err);
+      // Можно добавить показ ошибки пользователю
+    })
+    .finally(() => toggleFormLock(form, false)); // Разблокируем форму
 }
 
 /**
  * Обработчик отправки формы профиля
- * @param {Event} evt - Событие формы
  */
 export function handleProfileFormSubmit(evt) {
   evt.preventDefault();
   const form = evt.target;
-  const submitButton = form.querySelector('.popup__button');
-  const { name, description } = form.elements;
+  
+  toggleFormLock(form, true); // Блокируем форму
 
-  setLoadingState(submitButton, true);
-
-  updateUserInfo({ 
-    name: name.value, 
-    about: description.value 
+  updateUserInfo({
+    name: form.elements.name.value,
+    about: form.elements.description.value
   })
     .then(userData => {
       profileName.textContent = userData.name;
       profileDescription.textContent = userData.about;
       closeModal(form.closest('.popup'));
     })
-    .catch(err => console.error('Ошибка обновления профиля:', err))
-    .finally(() => setLoadingState(submitButton, false));
+    .catch(err => {
+      console.error('Ошибка обновления профиля:', err);
+    })
+    .finally(() => toggleFormLock(form, false)); // Разблокируем форму
 }
 
 /**
  * Обработчик отправки формы аватара
- * @param {Event} evt - Событие формы
  */
 export function handleAvatarFormSubmit(evt) {
   evt.preventDefault();
   const form = evt.target;
-  const submitButton = form.querySelector('.popup__button');
-  const avatarLink = form['avatar'].value.trim();
+  
+  toggleFormLock(form, true); // Блокируем форму
 
-  setLoadingState(submitButton, true, 'Сохранить');
-
-  updateUserAvatar(avatarLink)
+  updateUserAvatar(form.elements.avatar.value.trim())
     .then(userData => {
       profileImage.style.backgroundImage = `url(${userData.avatar})`;
       form.reset();
       closeModal(form.closest('.popup'));
     })
-    .catch(err => console.error('Ошибка обновления аватара:', err))
-    .finally(() => setLoadingState(submitButton, false, 'Сохранить'));
+    .catch(err => {
+      console.error('Ошибка обновления аватара:', err);
+    })
+    .finally(() => toggleFormLock(form, false)); // Разблокируем форму
 }

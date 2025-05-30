@@ -5,13 +5,13 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>Mesto</title>
-  <link rel="stylesheet" href="./pages/index.css"/>
+ <link rel="stylesheet" href="<%=htmlWebpackPlugin.files.css[0]%>"/>
 </head>
 <body class="page">
 <div class="page__content">
   
 <header class="header page__section">
-  <img src="<%=require('./images/logo.svg')%>" class="logo header__logo" alt="Логотип место"/>
+ <img src="<%=require('./images/logo.svg')%>" class="logo header__logo" alt="Логотип место"/>
 </header>
 
 <main class="content">
@@ -98,9 +98,6 @@
 </div>
 
 </div>
-
-<script src="./scripts/cards.js" type="module"></script>
-<script defer type="module" src="./index.js"></script>
 
 <template id="card-template">
   <li class="places__item card">

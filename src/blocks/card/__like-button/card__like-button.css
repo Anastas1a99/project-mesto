@@ -26,3 +26,27 @@
   color: #000;
   margin: 0;
 }
+
+.card__like-button_loading {
+  position: relative;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.card__like-button_loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

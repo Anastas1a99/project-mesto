@@ -1,6 +1,4 @@
-
 import './pages/index.css';
-
 import { createCard } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
 import { handleCardFormSubmit, handleProfileFormSubmit, handleAvatarFormSubmit } from './components/handlers.js';
@@ -39,7 +37,7 @@ const profileImage = document.querySelector('.profile__image');
 const confirmDeletePopup = document.querySelector('.popup_type_confirm-delete');
 const confirmDeleteForm = confirmDeletePopup.querySelector('form');
 const confirmDeleteButton = confirmDeleteForm.querySelector('.popup__button');
-let cardToDelete = null;
+
 
 getUserInfo()
   .then(user => {
@@ -127,14 +125,23 @@ closeAvatarButton.addEventListener('click', () => closeModal(avatarPopup));
 // Отправка формы
 avatarForm.addEventListener('submit', handleAvatarFormSubmit);
 
-export function openConfirmDelete(cardElement, currentUserId) {
-  cardToDelete = { element: cardElement, id: currentUserId };
+let isDeleting = false; // Флаг для отслеживания процесса удаления
+let cardToDelete = null;
+
+export function openConfirmDelete(cardElement, cardId) {
+  cardToDelete = { element: cardElement, id: cardId };
+  confirmDeleteButton.disabled = false; // Сбрасываем состояние кнопки
+  confirmDeleteButton.textContent = 'Да';
   openModal(confirmDeletePopup);
 }
 
 confirmDeleteForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
-
+  
+  if (isDeleting || !cardToDelete) return;
+  
+  isDeleting = true;
+  confirmDeleteButton.disabled = true;
   confirmDeleteButton.textContent = 'Удаление...';
 
   deleteCard(cardToDelete.id)
@@ -144,12 +151,21 @@ confirmDeleteForm.addEventListener('submit', (evt) => {
     })
     .catch(err => {
       console.error('Ошибка удаления карточки:', err);
+      // Можно добавить отображение ошибки пользователю
+      const errorElement = document.createElement('div');
+      errorElement.textContent = 'Не удалось удалить карточку';
+      errorElement.style.color = '#ff0000';
+      confirmDeleteForm.appendChild(errorElement);
+      setTimeout(() => errorElement.remove(), 3000);
     })
     .finally(() => {
+      isDeleting = false;
+      confirmDeleteButton.disabled = false;
       confirmDeleteButton.textContent = 'Да';
       cardToDelete = null;
     });
 });
+
 
 const confirmDeleteCloseButton = confirmDeletePopup.querySelector('.popup__close');
 confirmDeleteCloseButton.addEventListener('click', () => closeModal(confirmDeletePopup));

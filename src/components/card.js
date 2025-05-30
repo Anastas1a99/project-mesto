@@ -1,6 +1,6 @@
 import { cardTemplate, imagePopup, openConfirmDelete } from '../index.js';
 import { openModal } from './modal.js';
-import { likeCard, unlikeCard, deleteCard } from './api.js';
+import { likeCard, unlikeCard} from './api.js';
 
 
 function createCard(cardData, currentUserId) {
@@ -73,7 +73,17 @@ function setupEventHandlers(cardElement, elements, data, userId) {
 
 // Обработка клика по лайку
 function handleLikeClick(elements, cardId) {
+  // Если уже выполняется запрос - игнорируем клик
+  if (elements.likeBtn.classList.contains('card__like-button_loading')) {
+    return;
+  }
+
   const isLiked = elements.likeBtn.classList.contains('card__like-button_is-active');
+  
+  // Добавляем класс загрузки и блокируем кнопку
+  elements.likeBtn.classList.add('card__like-button_loading');
+  elements.likeBtn.disabled = true;
+
   const action = isLiked ? unlikeCard(cardId) : likeCard(cardId);
 
   action
@@ -81,7 +91,15 @@ function handleLikeClick(elements, cardId) {
       elements.likeBtn.classList.toggle('card__like-button_is-active');
       elements.likeCounter.textContent = updatedCard.likes.length;
     })
-    .catch(err => console.error('Ошибка при обновлении лайка:', err));
+    .catch(err => {
+      console.error('Ошибка при обновлении лайка:', err);
+      // Можно добавить отображение ошибки
+    })
+    .finally(() => {
+      // Восстанавливаем состояние кнопки
+      elements.likeBtn.classList.remove('card__like-button_loading');
+      elements.likeBtn.disabled = false;
+    });
 }
 
 // Открытие изображения карточки

@@ -1,3 +1,5 @@
+import { hideInputError } from './validation'; 
+
 /**
  * Открывает модальное окно
  * @param {HTMLElement} popup - Элемент модального окна
@@ -5,6 +7,8 @@
 export function openModal(popup) {
     popup.classList.add('popup_is-opened');
     document.addEventListener('keydown', handleEscapeKey);
+
+  
 }
 
 /**
@@ -14,6 +18,18 @@ export function openModal(popup) {
 export function closeModal(popup) {
     popup.classList.remove('popup_is-opened');
     document.removeEventListener('keydown', handleEscapeKey);
+
+    // Очищаем ошибки валидации
+    const form = popup.querySelector('form');
+    if (form) {
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach(input => {
+            hideInputError(form, input, {
+                inputErrorClass: 'popup__input_type_error',
+                errorClass: 'popup__error_visible'
+            });
+        });
+    }
 }
 
 /**

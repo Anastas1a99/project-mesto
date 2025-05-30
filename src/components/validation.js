@@ -18,7 +18,7 @@ function showInputError(formElement, inputElement, errorMessage, settings) {
  * @param {HTMLInputElement} inputElement - Поле ввода
  * @param {Object} settings - Настройки валидации
  */
-function hideInputError(formElement, inputElement, settings) {
+  export function hideInputError(formElement, inputElement, settings) {
   const errorElement = formElement.querySelector(`#${inputElement.name}-error`);
   inputElement.classList.remove(settings.inputErrorClass);
   errorElement.textContent = '';
@@ -47,50 +47,19 @@ function isValidUrl(url) {
  */
 function validateInput(formElement, inputElement, settings) {
   const value = inputElement.value.trim();
-  let isValid = true;
+  hideInputError(formElement, inputElement, settings); // Сначала скрываем ошибку
 
-  // Специальные проверки для разных типов полей
-  switch (inputElement.name) {
-    case 'link':
-      if (!isValidUrl(value)) {
-        showInputError(formElement, inputElement, 'Введите корректную ссылку.', settings);
-        isValid = false;
-      }
-      break;
-      
-    case 'name':
-      if (value.length < 2 || value.length > 40) {
-        showInputError(formElement, inputElement, 'Имя должно быть от 2 до 40 символов.', settings);
-        isValid = false;
-      }
-      break;
-      
-    case 'description':
-      if (value.length < 2 || value.length > 200) {
-        showInputError(formElement, inputElement, 'Описание должно быть от 2 до 200 символов.', settings);
-        isValid = false;
-      }
-      break;
-      
-    case 'title':
-      if (value.length < 2 || value.length > 30) {
-        showInputError(formElement, inputElement, 'Название должно быть от 2 до 30 символов.', settings);
-        isValid = false;
-      }
-      break;
-  }
+  if (hasInvalidInput([inputElement])) {
+    // Показываем ошибку в зависимости от поля
+    const errorMessage = {
+      name: 'Имя должно быть от 2 до 40 символов.',
+      description: 'Описание должно быть от 2 до 200 символов.',
+      title: 'Название должно быть от 2 до 30 символов.',
+      link: 'Введите корректную ссылку.'
+    }[inputElement.name] || inputElement.validationMessage;
 
-  // Проверка стандартной валидации
-  if (isValid && !inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage, settings);
-    isValid = false;
+    showInputError(formElement, inputElement, errorMessage, settings);
   }
-
-  if (isValid) {
-    hideInputError(formElement, inputElement, settings);
-  }
-  
-  return isValid;
 }
 
 /**
@@ -98,8 +67,28 @@ function validateInput(formElement, inputElement, settings) {
  * @param {Array<HTMLInputElement>} inputList - Список полей ввода
  * @returns {boolean} Есть ли невалидные поля
  */
+
 function hasInvalidInput(inputList) {
-  return inputList.some(input => !input.validity.valid);
+  return inputList.some(input => {
+    const value = input.value.trim();
+    
+    // Стандартная проверка
+    if (!input.validity.valid) return true;
+    
+    // Кастомные проверки
+    switch (input.name) {
+      case 'name':
+        return value.length < 2 || value.length > 40;
+      case 'description':
+        return value.length < 2 || value.length > 200;
+      case 'title':
+        return value.length < 2 || value.length > 30;
+      case 'link':
+        return !isValidUrl(value);
+      default:
+        return false;
+    }
+  });
 }
 
 /**
