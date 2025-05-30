@@ -30,10 +30,24 @@ function showInputError(formElement, inputElement, errorMessage, settings) {
  * @param {string} url - Проверяемый URL
  * @returns {boolean} Результат проверки
  */
+
 function isValidUrl(url) {
+  if (!url) return false; // Пустая строка невалидна
+  
+  // Быстрая проверка на минимальные требования к URL
+  if (!/^https?:\/\/.+\..+/.test(url)) {
+    return false;
+  }
+
   try {
-    new URL(url);
-    return true;
+    const parsedUrl = new URL(url);
+    return (
+      (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') &&
+      parsedUrl.hostname.includes('.') && // Должна быть хотя бы одна точка в домене
+      !parsedUrl.hostname.startsWith('.') &&
+      !parsedUrl.hostname.endsWith('.') &&
+      !url.includes(' ')
+    );
   } catch {
     return false;
   }
@@ -47,19 +61,49 @@ function isValidUrl(url) {
  */
 function validateInput(formElement, inputElement, settings) {
   const value = inputElement.value.trim();
-  hideInputError(formElement, inputElement, settings); // Сначала скрываем ошибку
+  hideInputError(formElement, inputElement, settings);
 
-  if (hasInvalidInput([inputElement])) {
-    // Показываем ошибку в зависимости от поля
-    const errorMessage = {
-      name: 'Имя должно быть от 2 до 40 символов.',
-      description: 'Описание должно быть от 2 до 200 символов.',
-      title: 'Название должно быть от 2 до 30 символов.',
-      link: 'Введите корректную ссылку.'
-    }[inputElement.name] || inputElement.validationMessage;
+  let isInvalid = false;
+  let errorMessage = '';
 
-    showInputError(formElement, inputElement, errorMessage, settings);
+  // Специальная обработка поля URL
+  if (inputElement.name === 'link') {
+    if (!value) {
+      isInvalid = true;
+      errorMessage = 'Это обязательное поле';
+    } else if (!isValidUrl(value)) {
+      isInvalid = true;
+      errorMessage = 'Введите корректный URL (например: https://example.com)';
+    }
+  } else {
+    // Стандартная валидация для других полей
+    isInvalid = !inputElement.validity.valid;
+    errorMessage = inputElement.validationMessage;
   }
+
+  // Дополнительные кастомные проверки
+  if (!isInvalid) {
+    switch (inputElement.name) {
+      case 'name':
+        isInvalid = value.length < 2 || value.length > 40;
+        errorMessage = 'Имя должно быть от 2 до 40 символов.';
+        break;
+      case 'description':
+        isInvalid = value.length < 2 || value.length > 200;
+        errorMessage = 'Описание должно быть от 2 до 200 символов.';
+        break;
+      case 'title':
+        isInvalid = value.length < 2 || value.length > 30;
+        errorMessage = 'Название должно быть от 2 до 30 символов.';
+        break;
+    }
+  }
+
+  if (isInvalid) {
+    showInputError(formElement, inputElement, errorMessage, settings);
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -72,10 +116,15 @@ function hasInvalidInput(inputList) {
   return inputList.some(input => {
     const value = input.value.trim();
     
+    // Специальная проверка для URL
+    if (input.name === 'link') {
+      return !isValidUrl(value);
+    }
+    
     // Стандартная проверка
     if (!input.validity.valid) return true;
     
-    // Кастомные проверки
+    // Кастомные проверки длины
     switch (input.name) {
       case 'name':
         return value.length < 2 || value.length > 40;
@@ -83,8 +132,6 @@ function hasInvalidInput(inputList) {
         return value.length < 2 || value.length > 200;
       case 'title':
         return value.length < 2 || value.length > 30;
-      case 'link':
-        return !isValidUrl(value);
       default:
         return false;
     }

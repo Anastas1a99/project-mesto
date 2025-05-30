@@ -28,6 +28,7 @@ popups.forEach(popup => popup.classList.add('popup_is-animated'));
 
 export let currentUserId = null;
 
+
 const avatarPopup = document.querySelector('.popup_type_edit-avatar');
 const avatarForm = avatarPopup.querySelector('.popup__form');
 const avatarInput = avatarPopup.querySelector('.popup__input_type_avatar-link');
