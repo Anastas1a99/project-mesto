@@ -66,8 +66,8 @@ function validateInput(formElement, inputElement, settings) {
   let isInvalid = false;
   let errorMessage = '';
 
-  // Специальная обработка поля URL
-  if (inputElement.name === 'link') {
+  // Специальная обработка полей URL (карточки и аватар)
+  if (inputElement.name === 'link' || inputElement.name === 'avatar') {
     if (!value) {
       isInvalid = true;
       errorMessage = 'Это обязательное поле';
@@ -116,8 +116,8 @@ function hasInvalidInput(inputList) {
   return inputList.some(input => {
     const value = input.value.trim();
     
-    // Специальная проверка для URL
-    if (input.name === 'link') {
+    // Специальная проверка для URL (карточки и аватар)
+    if (input.name === 'link' || input.name === 'avatar') {
       return !isValidUrl(value);
     }
     
